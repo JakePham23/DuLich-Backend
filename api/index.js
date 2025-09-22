@@ -2,21 +2,21 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
-import dotenv from "dotenv";
-import itineraryRoutes from '../src/routes/itinerary.route.js';
-
-dotenv.config();
-
 const app = express();
+const PORT = process.env.PORT || 3001;
+import { connectDB } from "./db.js";
 
-// ⚡ CORS
+import dotenv from "dotenv";
+dotenv.config()
+import itineraryRoutes from './src/routes/itinerary.route.js'
+// ⚡ CORS để cho phép gửi cookie từ frontend (port 3000)
 app.use(
   cors({
     origin: [
       "http://localhost:3000",
-      "https://dulichphanthiet.vercel.app"
+      "dulichphanthiet.vercel.app"
     ],
-    credentials: true,
+    credentials: true, // ⚡ quan trọng để gửi cookie
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: [
       "Content-Type",
@@ -26,7 +26,7 @@ app.use(
   })
 );
 
-// Middlewares
+// ⚡ Đọc JSON và Cookie
 app.use(express.json());
 app.use(cookieParser());
 
@@ -36,15 +36,20 @@ app.use((req, res, next) => {
   next();
 });
 
-// Kết nối MongoDB (chỉ nên connect 1 lần)
-if (!mongoose.connection.readyState) {
-  mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log("✅ Kết nối MongoDB thành công!"))
-    .catch(err => console.error("❌ Lỗi kết nối MongoDB:", err));
-}
+// Kết nối tới MongoDB
+connectDB()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on http://localhost:${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("❌ Failed to connect to MongoDB:", err);
+    process.exit(1);
+  });
+// Định nghĩa Routes
+app.use('/api/itinerary', itineraryRoutes);
 
-// Routes
-app.use("/api/itinerary", itineraryRoutes);
-
-// Xuất Express app cho Vercel
-export default app;
+app.listen(PORT, () => {
+  console.log(`🚀 Backend server đang chạy tại http://localhost:${PORT}`);
+});

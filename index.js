@@ -4,6 +4,8 @@ import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 const app = express();
 const PORT = process.env.PORT || 3001;
+import { connectDB } from "./db.js";
+
 import dotenv from "dotenv";
 dotenv.config()
 import itineraryRoutes from './src/routes/itinerary.route.js'
@@ -35,10 +37,16 @@ app.use((req, res, next) => {
 });
 
 // Kết nối tới MongoDB
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('✅ Kết nối MongoDB thành công!'))
-  .catch(err => console.error('❌ Lỗi kết nối MongoDB:', err));
-
+connectDB()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on http://localhost:${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("❌ Failed to connect to MongoDB:", err);
+    process.exit(1);
+  });
 // Định nghĩa Routes
 app.use('/api/itinerary', itineraryRoutes);
 
