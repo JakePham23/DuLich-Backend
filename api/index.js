@@ -3,7 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import { connectDB } from "./src/db.js";   // file connect MongoDB
-import itineraryRoutes from "./src/routes/itinerary.route.js";
+import itineraryRoutes from "../src/routes/itinerary.route.js";
 
 dotenv.config();
 
