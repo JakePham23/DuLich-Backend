@@ -4,7 +4,7 @@ import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 const app = express();
 const PORT = process.env.PORT || 3001;
-import { connectDB } from "./db.js";
+import { connectDB } from "./src/db.js";
 
 import dotenv from "dotenv";
 dotenv.config()
@@ -30,6 +30,10 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
+
+// Định nghĩa Routes
+app.use('/api/itinerary', itineraryRoutes);
+
 // Bỏ cảnh báo ngrok
 app.use((req, res, next) => {
   res.setHeader("ngrok-skip-browser-warning", "true");
@@ -47,9 +51,3 @@ connectDB()
     console.error("❌ Failed to connect to MongoDB:", err);
     process.exit(1);
   });
-// Định nghĩa Routes
-app.use('/api/itinerary', itineraryRoutes);
-
-app.listen(PORT, () => {
-  console.log(`🚀 Backend server đang chạy tại http://localhost:${PORT}`);
-});
