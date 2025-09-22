@@ -1,6 +1,6 @@
 import express from 'express';
 import Itinerary from '../models/itinerary.model.js';
-import { connectDB } from '../../db.js'; // import hàm connectDB
+import { connectDB } from '../db.js'; // import hàm connectDB
 
 const router = express.Router();
 
