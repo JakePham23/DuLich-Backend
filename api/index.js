@@ -49,7 +49,5 @@ connectDB()
   });
 // Định nghĩa Routes
 app.use('/api/itinerary', itineraryRoutes);
-
-app.listen(PORT, () => {
-  console.log(`🚀 Backend server đang chạy tại http://localhost:${PORT}`);
-});
+// Xuất Express app cho Vercel
+export default app;
