@@ -4,7 +4,8 @@ import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 const app = express();
 const PORT = process.env.PORT || 3001;
-import { connectDB } from "./src/db.js";
+// import { connectDB } from "./src/db.js";
+import "./src/db.js";
 
 import dotenv from "dotenv";
 dotenv.config()
@@ -40,14 +41,17 @@ app.use((req, res, next) => {
   next();
 });
 
-// Kết nối tới MongoDB
-connectDB()
-  .then(() => {
-    app.listen(PORT, () => {
+ app.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
     });
-  })
-  .catch((err) => {
-    console.error("❌ Failed to connect to MongoDB:", err);
-    process.exit(1);
-  });
+// // Kết nối tới MongoDB
+// connectDB()
+//   .then(() => {
+//     app.listen(PORT, () => {
+//       console.log(`🚀 Server running on http://localhost:${PORT}`);
+//     });
+//   })
+//   .catch((err) => {
+//     console.error("❌ Failed to connect to MongoDB:", err);
+//     process.exit(1);
+//   });
