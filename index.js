@@ -15,7 +15,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
-      "dulichphanthiet.vercel.app"
+      "https://scheduletravel.vercel.app"
     ],
     credentials: true, // ⚡ quan trọng để gửi cookie
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
