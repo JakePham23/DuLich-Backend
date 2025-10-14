@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
-import { connectDB } from "../src/db.js";   // file connect MongoDB
+import  "../src/db.js";   // file connect MongoDB
 import itineraryRoutes from "../src/routes/itinerary.route.js";
 
 dotenv.config();
@@ -36,9 +36,9 @@ app.use((req, res, next) => {
 app.use("/api/itinerary", itineraryRoutes);
 
 // ⚡ Kết nối MongoDB (chỉ cần gọi connect, không listen)
-connectDB().catch((err) => {
-  console.error("❌ Failed to connect to MongoDB:", err);
-});
+// connectDB().catch((err) => {
+//   console.error("❌ Failed to connect to MongoDB:", err);
+// });
 
 // ⚡ Export app cho Vercel dùng
 export default app;
