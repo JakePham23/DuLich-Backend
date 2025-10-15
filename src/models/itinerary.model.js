@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const activitySchema = new mongoose.Schema({
-    _id: String,   // 👈 thêm dòng này
+  // REMOVED: _id: String, // Mongoose handles _id automatically
   start_time: String,
   end_time: String,
   activity_name: String,
@@ -19,15 +19,18 @@ const daySchema = new mongoose.Schema({
 });
 
 const itinerarySchema = new mongoose.Schema({
-    _id: String,   // 👈 thêm dòng này
-  stt: String,
-  start_date: String,
-  end_date: String,
-  location: String,
-  days: [daySchema] // Thay thế 'activities' bằng 'days'
+  // REMOVED: _id: String, // Mongoose handles _id automatically
+  stt: { type: String, required: true }, // Added required for basic fields
+  start_date: { type: String, required: true },
+  end_date: { type: String, required: true },
+  location: { type: String, required: true },
+  days: [daySchema] 
+}, {
+    // This setting is optional, as _id is true by default, 
+    // but ensures Mongoose uses its default ObjectId generation.
+    _id: true, 
 });
 
-// Dòng này đã được sửa
 // Tên model là 'schedule'
 // Tên collection cũng là 'schedule'
 const Itinerary = mongoose.model('schedule', itinerarySchema, 'schedule'); 

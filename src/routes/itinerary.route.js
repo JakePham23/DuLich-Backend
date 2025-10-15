@@ -1,28 +1,27 @@
 import express from 'express';
 import Itinerary from '../models/itinerary.model.js';
-// import { connectDB } from '../db.js'; // import hàm connectDB
+import mongoose from 'mongoose'; // Cần cho việc bắt CastError và isValid
 
 const router = express.Router();
 
 // Route lấy toàn bộ lịch trình
 router.get('/', async (req, res) => {
   try {
-    // await connectDB(); // đảm bảo connect trước khi query
-    const itinerary = await Itinerary.find({});
-    if (!itinerary) {
-      return res.status(404).json({ message: 'Không tìm thấy lịch trình.' });
-    }
-    res.json(itinerary);
+    const itineraries = await Itinerary.find({});
+    // Vì find({}) trả về mảng rỗng nếu không có document, nên không cần check !itinerary
+    res.json(itineraries); 
   } catch (err) {
     console.error("❌ Lỗi get itinerary:", err);
     res.status(500).json({ message: err.message });
   }
 });
+
+// Route lấy lịch trình theo ID
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params; 
-
-    // await connectDB(); // đảm bảo connect trước khi query (giả sử đã comment out)
+    
+    // Mongoose tự động cố gắng ép kiểu id thành ObjectId
     const itinerary = await Itinerary.findOne({ _id: id }); 
 
     if (!itinerary) {
@@ -31,39 +30,70 @@ router.get('/:id', async (req, res) => {
     
     res.json(itinerary);
   } catch (err) {
-    // Cần kiểm tra lỗi CastError cho MongoDB nếu ID không hợp lệ
     console.error("❌ Lỗi get itinerary:", err);
+    if (err.name === 'CastError') {
+        // Bắt lỗi khi ID không phải là ObjectId hợp lệ
+        return res.status(400).json({ message: 'ID lịch trình không hợp lệ.' });
+    }
     res.status(500).json({ message: 'Lỗi máy chủ nội bộ.' });
   }
 });
-// Route update itinerary
+
+// Route update itinerary (Dùng để sửa inline, modal, thêm ngày, thêm/xóa hoạt động)
 router.put('/:id', async (req, res) => {
   try {
-    // await connectDB(); // đảm bảo connect trước khi query
-    const { id } = req.params; // id itinerary
+    const { id } = req.params; 
     const updateData = req.body;
 
-    console.log("🆔 id: ", id);
-
+    // findByIdAndUpdate với toàn bộ dữ liệu (đã bao gồm các mảng activities, days mới)
+    // { new: true } trả về document đã cập nhật
+    // { runValidators: true } đảm bảo các trường required (stt, location, etc.) vẫn hợp lệ
     const updatedItinerary = await Itinerary.findByIdAndUpdate(
       id,
       updateData,
       { new: true, runValidators: true }
     );
 
-    console.log("✅ Updated itinerary:", JSON.stringify(updatedItinerary, null, 2));
-
     if (!updatedItinerary) {
       return res.status(404).json({ message: 'Không tìm thấy itinerary để cập nhật.' });
     }
 
-    res.json({
-      message: 'Cập nhật itinerary thành công.',
-      itinerary: updatedItinerary
-    });
+    // Trả về document đã cập nhật
+    res.json(updatedItinerary); 
   } catch (err) {
     console.error('❌ Lỗi update itinerary:', err);
-    res.status(500).json({ message: err.message });
+     if (err.name === 'CastError') {
+       return res.status(400).json({ message: 'ID lịch trình hoặc dữ liệu không hợp lệ.' });
+    }
+    if (err.name === 'ValidationError') {
+       return res.status(400).json({ message: 'Lỗi xác thực dữ liệu.' });
+    }
+    res.status(500).json({ message: 'Lỗi máy chủ nội bộ.' });
+  }
+});
+
+// Route tạo lịch trình mới
+router.post('/', async (req, res) => {
+  try {
+    const itineraryData = req.body;
+    
+    // Gán mảng days rỗng nếu client không gửi (đảm bảo cấu trúc schema)
+    const dataWithDefaults = {
+        ...itineraryData,
+        days: itineraryData.days || [],
+    };
+    
+    const savedItinerary = await Itinerary.create(dataWithDefaults);
+
+    res.status(201).json(savedItinerary);
+  } catch (err) {
+    console.error('❌ Lỗi tạo lịch trình:', err);
+    
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ message: 'Lỗi xác thực dữ liệu.', errors: err.errors });
+    }
+    
+    res.status(500).json({ message: 'Lỗi máy chủ nội bộ khi tạo lịch trình.' });
   }
 });
 
