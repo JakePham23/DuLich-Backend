@@ -7,6 +7,7 @@ const activitySchema = new mongoose.Schema({
   activity_name: String,
   location_name: String,
   description: String,
+  cost: Number,
   maps_url: String,
   image_urls: [String],
   tiktok_urls: [String]
